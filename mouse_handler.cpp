@@ -57,3 +57,11 @@ void MouseHandler::Task() {
     }
   }
 }
+
+void MouseHandler::SetTriggerThreshold(uint32_t time) {
+  if (state_ != State::Release) {
+    Mouse.release();
+    state_ = State::Release;
+  }
+  trigger_time_value_ = time;
+}

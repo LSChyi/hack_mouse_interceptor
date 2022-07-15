@@ -24,6 +24,7 @@ public:
   void OnRightReport(bool pressing);
   void OnPosReport(uint8_t x, uint8_t y, uint8_t wheel);
   void Task();
+  void SetTriggerThreshold(uint32_t time);
 
 private:
   bool left_state_;
