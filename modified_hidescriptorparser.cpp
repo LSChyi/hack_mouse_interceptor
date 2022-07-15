@@ -843,16 +843,8 @@ void ReportDescParserBase::Parse(const uint16_t len, const uint8_t *pbuf,
   totalSize = 0;
 
   while (cntdn) {
-    // USB_HOST_SERIAL.println("");
-    // PrintHex<uint16_t>(offset + len - cntdn);
-    // USB_HOST_SERIAL.print(":");
-
     ParseItem(&p, &cntdn);
-
-    // if (ParseItem(&p, &cntdn))
-    //        return;
   }
-  // USBTRACE2("Total:", totalSize);
 }
 
 void ReportDescParserBase::PrintValue(uint8_t *p, uint8_t len) {
@@ -1129,7 +1121,6 @@ void ReportDescParserBase::PrintButtonPageUsage(uint16_t usage) {
   E_Notify(PSTR("Btn"), 0x80);
   PrintHex<uint16_t>(usage, 0x80);
   E_Notify(PSTR("\r\n"), 0x80);
-  // USB_HOST_SERIAL.print(usage, HEX);
 }
 
 void ReportDescParserBase::PrintOrdinalPageUsage(uint16_t usage) {
@@ -1138,7 +1129,6 @@ void ReportDescParserBase::PrintOrdinalPageUsage(uint16_t usage) {
   // Sorry, HEX for now...
   PrintHex<uint16_t>(usage, 0x80);
   E_Notify(PSTR("\r\n"), 0x80);
-  // USB_HOST_SERIAL.print(usage, DEC);
 }
 
 void ReportDescParserBase::PrintGenericDesktopPageUsage(uint16_t usage) {
@@ -1163,50 +1153,13 @@ void ReportDescParserBase::PrintGenericDesktopPageUsage(uint16_t usage) {
                                                                                                                  0x80);
 }
 
-void ReportDescParserBase::PrintSimulationControlsPageUsage(uint16_t usage) {
-  const char *const *w;
-  E_Notify(pstrSpace, 0x80);
+void ReportDescParserBase::PrintSimulationControlsPageUsage(uint16_t usage) {}
 
-  output_if_between(usage, 0x00, 0x0d, w, E_Notify, simuTitles0, 0x80) else output_if_between(
-      usage, 0x1f, 0x26, w, E_Notify, simuTitles1,
-      0x80) else output_if_between(usage, 0xaf, 0xd1, w, E_Notify, simuTitles2,
-                                   0x80) else E_Notify(pstrUsagePageUndefined,
-                                                       0x80);
-}
+void ReportDescParserBase::PrintVRControlsPageUsage(uint16_t usage) {}
 
-void ReportDescParserBase::PrintVRControlsPageUsage(uint16_t usage) {
-  const char *const *w;
-  E_Notify(pstrSpace, 0x80);
+void ReportDescParserBase::PrintSportsControlsPageUsage(uint16_t usage) {}
 
-  output_if_between(
-      usage, 0x00, 0x0b, w, E_Notify, vrTitles0,
-      0x80) else output_if_between(usage, 0x1f, 0x22, w, E_Notify, vrTitles1,
-                                   0x80) else E_Notify(pstrUsagePageUndefined,
-                                                       0x80);
-}
-
-void ReportDescParserBase::PrintSportsControlsPageUsage(uint16_t usage) {
-  const char *const *w;
-  E_Notify(pstrSpace, 0x80);
-
-  output_if_between(usage, 0x00, 0x05, w, E_Notify, sportsCtrlTitles0, 0x80) else output_if_between(
-      usage, 0x2f, 0x3a, w, E_Notify, sportsCtrlTitles1,
-      0x80) else output_if_between(usage, 0x4f, 0x64, w, E_Notify,
-                                   sportsCtrlTitles2,
-                                   0x80) else E_Notify(pstrUsagePageUndefined,
-                                                       0x80);
-}
-
-void ReportDescParserBase::PrintGameControlsPageUsage(uint16_t usage) {
-  const char *const *w;
-  E_Notify(pstrSpace, 0x80);
-
-  output_if_between(
-      usage, 0x00, 0x04, w, E_Notify, gameTitles0,
-      0x80) else output_if_between(usage, 0x1f, 0x3a, w, E_Notify, gameTitles1,
-                                   0x80) else E_Notify(pstrUsagePageUndefined,
-                                                       0x80);
-}
+void ReportDescParserBase::PrintGameControlsPageUsage(uint16_t usage) {}
 
 void ReportDescParserBase::PrintGenericDeviceControlsPageUsage(uint16_t usage) {
   const char *const *w;
@@ -1216,111 +1169,17 @@ void ReportDescParserBase::PrintGenericDeviceControlsPageUsage(uint16_t usage) {
                     0x80) else E_Notify(pstrUsagePageUndefined, 0x80);
 }
 
-void ReportDescParserBase::PrintLEDPageUsage(uint16_t usage) {
-  const char *const *w;
-  E_Notify(pstrSpace, 0x80);
+void ReportDescParserBase::PrintLEDPageUsage(uint16_t usage) {}
 
-  output_if_between(usage, 0x00, 0x4e, w, E_Notify, ledTitles,
-                    0x80) else E_Notify(pstrUsagePageUndefined, 0x80);
-}
+void ReportDescParserBase::PrintTelephonyPageUsage(uint16_t usage) {}
 
-void ReportDescParserBase::PrintTelephonyPageUsage(uint16_t usage) {
-  const char *const *w;
-  E_Notify(pstrSpace, 0x80);
+void ReportDescParserBase::PrintConsumerPageUsage(uint16_t usage) {}
 
-  output_if_between(usage, 0x00, 0x08, w, E_Notify, telTitles0, 0x80) else output_if_between(usage, 0x1f, 0x32, w, E_Notify, telTitles1, 0x80) else output_if_between(
-      usage, 0x4f, 0x54, w, E_Notify, telTitles2,
-      0x80) else output_if_between(usage, 0x6f, 0x75, w, E_Notify, telTitles3,
-                                   0x80) else output_if_between(usage, 0x8f,
-                                                                0x9f, w,
-                                                                E_Notify,
-                                                                telTitles4,
-                                                                0x80) else output_if_between(usage,
-                                                                                             0xaf,
-                                                                                             0xc0,
-                                                                                             w,
-                                                                                             E_Notify,
-                                                                                             telTitles5,
-                                                                                             0x80) else E_Notify(pstrUsagePageUndefined,
-                                                                                                                 0x80);
-}
+void ReportDescParserBase::PrintDigitizerPageUsage(uint16_t usage) {}
 
-void ReportDescParserBase::PrintConsumerPageUsage(uint16_t usage) {
-  const char *const *w;
-  E_Notify(pstrSpace, 0x80);
+void ReportDescParserBase::PrintAlphanumDisplayPageUsage(uint16_t usage) {}
 
-  output_if_between(usage, 0x00, 0x07, w, E_Notify, consTitles0,
-                    0x80) else output_if_between(usage,
-                                                 0x1f, 0x23, w, E_Notify, consTitles1, 0x80) else output_if_between(usage, 0x2f, 0x37, w, E_Notify, consTitles2, 0x80) else output_if_between(usage, 0x3f, 0x49, w, E_Notify, consTitles3, 0x80) else output_if_between(usage, 0x5f,
-                                                                                                                                                                                                                                                                        0x67,
-                                                                                                                                                                                                                                                                        w,
-                                                                                                                                                                                                                                                                        E_Notify, consTitles4, 0x80) else output_if_between(usage,
-                                                                                                                                                                                                                                                                                                                            0x7f,
-                                                                                                                                                                                                                                                                                                                            0xa5,
-                                                                                                                                                                                                                                                                                                                            w,
-                                                                                                                                                                                                                                                                                                                            E_Notify, consTitles5, 0x80) else output_if_between(usage, 0xaf, 0xcf, w, E_Notify, consTitles6, 0x80) else output_if_between(usage, 0xdf, 0xeb, w, E_Notify, consTitles7,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                          0x80) else output_if_between(usage, 0xef, 0xf6, w, E_Notify, consTitles8, 0x80) else output_if_between(usage,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 0xff, 0x10e, w,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 E_Notify, consTitles9, 0x80) else output_if_between(usage,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     0x14f, 0x156, w, E_Notify, consTitlesA, 0x80) else output_if_between(usage,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          0x15f,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          0x16b, w, E_Notify, consTitlesB,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          0x80) else output_if_between(usage,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       0x16f,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       0x175,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       w, E_Notify, consTitlesC, 0x80) else output_if_between(usage, 0x17f, 0x1c8, w, E_Notify, consTitlesD, 0x80) else output_if_between(usage, 0x1ff, 0x29d, w, E_Notify, consTitlesE,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          0x80) else E_Notify(pstrUsagePageUndefined,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              0x80);
-}
-
-void ReportDescParserBase::PrintDigitizerPageUsage(uint16_t usage) {
-  const char *const *w;
-  E_Notify(pstrSpace, 0x80);
-
-  output_if_between(usage, 0x00, 0x0e, w, E_Notify, digitTitles0, 0x80) else output_if_between(
-      usage, 0x1f, 0x23, w, E_Notify, digitTitles1,
-      0x80) else output_if_between(usage, 0x2f, 0x47, w, E_Notify, digitTitles2,
-                                   0x80) else E_Notify(pstrUsagePageUndefined,
-                                                       0x80);
-}
-
-void ReportDescParserBase::PrintAlphanumDisplayPageUsage(uint16_t usage) {
-  const char *const *w;
-  E_Notify(pstrSpace, 0x80);
-
-  output_if_between(usage, 0x00, 0x03, w, E_Notify, aplphanumTitles0, 0x80) else output_if_between(
-      usage, 0x1f, 0x4e, w, E_Notify, aplphanumTitles1,
-      0x80) else output_if_between(usage, 0x7f, 0x96, w, E_Notify, digitTitles2,
-                                   0x80) else E_Notify(pstrUsagePageUndefined,
-                                                       0x80);
-}
-
-void ReportDescParserBase::PrintMedicalInstrumentPageUsage(uint16_t usage) {
-  const char *const *w;
-  E_Notify(pstrSpace, 0x80);
-
-  if (usage == 1)
-    E_Notify(pstrUsageMedicalUltrasound, 0x80);
-  else if (usage == 0x70)
-    E_Notify(pstrUsageDepthGainCompensation, 0x80);
-  else
-    output_if_between(usage, 0x1f, 0x28, w, E_Notify, medInstrTitles0, 0x80) else output_if_between(
-        usage, 0x3f, 0x45, w, E_Notify, medInstrTitles1,
-        0x80) else output_if_between(usage, 0x5f, 0x62, w, E_Notify,
-                                     medInstrTitles2,
-                                     0x80) else output_if_between(usage, 0x7f,
-                                                                  0x8a, w,
-                                                                  E_Notify,
-                                                                  medInstrTitles3,
-                                                                  0x80) else output_if_between(usage,
-                                                                                               0x9f,
-                                                                                               0xa2,
-                                                                                               w,
-                                                                                               E_Notify,
-                                                                                               medInstrTitles4,
-                                                                                               0x80) else E_Notify(pstrUsagePageUndefined,
-                                                                                                                   0x80);
-}
+void ReportDescParserBase::PrintMedicalInstrumentPageUsage(uint16_t usage) {}
 
 uint8_t ReportDescParser2::ParseItem(uint8_t **pp, uint16_t *pcntdn) {
   // uint8_t ret = enErrorSuccess;
