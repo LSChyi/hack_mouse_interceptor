@@ -19,6 +19,7 @@ e-mail   :  support@circuitsathome.com
 
 #include "circular_queue.h"
 #include "mouse_fn_extractor.h"
+#include "mouse_handler.h"
 
 #include <usbhid.h>
 
@@ -189,6 +190,7 @@ class UniversalReportParser : public HIDReportParser {
 public:
   // Method should be defined here if virtual.
   virtual void Parse(USBHID *hid, bool is_rpt_id, uint8_t len, uint8_t *buf);
+  void SetMouseHandler(MouseHandler *handler) { handler_ = handler; };
 
 private:
   MouseBtnExtractor left_;
@@ -197,6 +199,7 @@ private:
   MousePosExtractor x_;
   MousePosExtractor y_;
   MouseWheelExtractor wheel_;
+  MouseHandler *handler_;
 };
 } // namespace ModifiedParser
 

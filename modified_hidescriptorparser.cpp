@@ -1232,7 +1232,7 @@ uint8_t ReportDescParser2::ParseItem(uint8_t **pp, uint16_t *pcntdn) {
             mouse_fn_extractor_queue_.Enqueue(wheel_);
             break;
           }
-          //pfUsage(data);
+          // pfUsage(data);
         }
       }
       break;
@@ -1323,7 +1323,7 @@ void ReportDescParser2::OnInputItem(uint8_t itm) {
           break;
         }
       }
-      //pfUsage(usage);
+      // pfUsage(usage);
     }
 
     // bits_left            - number of bits in the field(array of fields,
@@ -1360,7 +1360,7 @@ void ReportDescParser2::OnInputItem(uint8_t itm) {
         p++;
       }
     }
-    //PrintByteValue(result.dwResult);
+    // PrintByteValue(result.dwResult);
     if (!mouse_fn_extractor_queue_.IsEmpty()) {
       MouseFnExtractor *extractor = mouse_fn_extractor_queue_.Dequeue();
       extractor->SetValues(rptSize, rptCount, result.dwResult);
@@ -1380,17 +1380,9 @@ void UniversalReportParser::Parse(USBHID *hid,
   if (ret)
     ErrorMessage<uint8_t>(PSTR("GetReportDescr-2"), ret);
 
-  Serial.print("Left: ");
-  Serial.println((left_.GetBtn()) ?"Pressed" : "Released");
-  Serial.print("Middle: ");
-  Serial.println((middle_.GetBtn()) ?"Pressed" : "Released");
-  Serial.print("Right: ");
-  Serial.println((right_.GetBtn()) ?"Pressed" : "Released");
-  Serial.print("X: ");
-  Serial.println(x_.GetPos());
-  Serial.print("Y: ");
-  Serial.println(y_.GetPos());
-  Serial.print("Wheel: ");
-  Serial.println(wheel_.GetWheel());
+  handler_->OnLeftReport(left_.GetBtn());
+  handler_->OnMiddleReport(middle_.GetBtn());
+  handler_->OnRightReport(right_.GetBtn());
+  handler_->OnPosReport(x_.GetPos(), y_.GetPos(), wheel_.GetWheel());
 }
 } // namespace ModifiedParser

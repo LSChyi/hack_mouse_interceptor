@@ -1,6 +1,7 @@
 //#define DEBUG // Turn on if need debugging
 
 #include "modified_hidescriptorparser.h"
+#include "mouse_handler.h"
 
 #include <SPI.h>
 #include <hidcomposite.h>
@@ -24,6 +25,7 @@ bool HIDSelector::SelectInterface(uint8_t iface, uint8_t proto) {
 USB Usb;
 HIDSelector hidSelector(&Usb);
 ModifiedParser::UniversalReportParser Uni;
+MouseHandler mouse_handler;
 
 void setup() {
   Serial.begin(115200);
@@ -42,6 +44,9 @@ void setup() {
   if (!hidSelector.SetReportParser(0, &Uni)) {
     ErrorMessage<uint8_t>(PSTR("SetReportParser"), 1);
   }
+  
+  mouse_handler.Init();
+  Uni.SetMouseHandler(&mouse_handler);
 }
 
 void loop() { Usb.Task(); }

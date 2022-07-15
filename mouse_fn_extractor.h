@@ -26,7 +26,7 @@ public:
 
 class MousePosExtractor : public MouseFnExtractor {
 public:
-  uint8_t GetPos() { return (value_ > 0xFF) ? 0xFF : value_; };
+  uint8_t GetPos() { return ((value_ >> (size_ - 8)) & 0xFF); };
 };
 
 class MouseWheelExtractor : public MouseFnExtractor {
