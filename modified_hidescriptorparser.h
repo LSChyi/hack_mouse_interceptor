@@ -17,6 +17,9 @@ e-mail   :  support@circuitsathome.com
 #ifndef MODIFIED_HIDESCRIPTORPARSER_H_
 #define MODIFIED_HIDESCRIPTORPARSER_H_
 
+#include "circular_queue.h"
+#include "mouse_fn_extractor.h"
+
 #include <usbhid.h>
 
 namespace ModifiedParser {
@@ -161,12 +164,39 @@ public:
   ReportDescParser2(uint16_t len, uint8_t *pbuf)
       : ReportDescParserBase(), rptId(0), useMin(0), useMax(0), fieldCount(0),
         pBuf(pbuf), bLen(len){};
+  void SetMouseFnExtractors(MouseFnExtractor *left, MouseFnExtractor *middle,
+                            MouseFnExtractor *right, MouseFnExtractor *x,
+                            MouseFnExtractor *y, MouseFnExtractor *wheel) {
+    left_ = left;
+    middle_ = middle;
+    right_ = right;
+    x_ = x;
+    y_ = y;
+    wheel_ = wheel;
+  };
+
+private:
+  CircularQueue<MouseFnExtractor *> mouse_fn_extractor_queue_;
+  MouseFnExtractor *left_;
+  MouseFnExtractor *middle_;
+  MouseFnExtractor *right_;
+  MouseFnExtractor *x_;
+  MouseFnExtractor *y_;
+  MouseFnExtractor *wheel_;
 };
 
 class UniversalReportParser : public HIDReportParser {
 public:
   // Method should be defined here if virtual.
   virtual void Parse(USBHID *hid, bool is_rpt_id, uint8_t len, uint8_t *buf);
+
+private:
+  MouseBtnExtractor left_;
+  MouseBtnExtractor middle_;
+  MouseBtnExtractor right_;
+  MousePosExtractor x_;
+  MousePosExtractor y_;
+  MouseWheelExtractor wheel_;
 };
 } // namespace ModifiedParser
 

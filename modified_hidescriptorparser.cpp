@@ -1220,11 +1220,20 @@ uint8_t ReportDescParser2::ParseItem(uint8_t **pp, uint16_t *pcntdn) {
     switch (itemPrefix & (TYPE_MASK | TAG_MASK)) {
     case (TYPE_LOCAL | TAG_LOCAL_USAGE):
       if (pfUsage) {
-        if (theBuffer.valueSize > 1) {
-          uint16_t *ui16 = reinterpret_cast<uint16_t *>(varBuffer);
-          pfUsage(*ui16);
-        } else
-          pfUsage(data);
+        if (theBuffer.valueSize <= 1) {
+          switch (data) {
+          case 48:
+            mouse_fn_extractor_queue_.Enqueue(x_);
+            break;
+          case 49:
+            mouse_fn_extractor_queue_.Enqueue(y_);
+            break;
+          case 56:
+            mouse_fn_extractor_queue_.Enqueue(wheel_);
+            break;
+          }
+          //pfUsage(data);
+        }
       }
       break;
     case (TYPE_GLOBAL | TAG_GLOBAL_REPORTSIZE):
@@ -1253,11 +1262,6 @@ uint8_t ReportDescParser2::ParseItem(uint8_t **pp, uint16_t *pcntdn) {
       useMax = 0;
       break;
     case (TYPE_MAIN | TAG_MAIN_INPUT):
-      Serial.print(" rptSize = ");
-      Serial.print(rptSize);
-      Serial.print(", rptCount = ");
-      Serial.print(rptCount);
-      Serial.print(": ");
       OnInputItem(data);
 
       totalSize += (uint16_t)rptSize * (uint16_t)rptCount;
@@ -1306,7 +1310,20 @@ void ReportDescParser2::OnInputItem(uint8_t itm) {
     uint8_t mask = 0;
 
     if (print_usemin_usemax) {
-      pfUsage(usage);
+      if (pfUsage == PrintButtonPageUsage) {
+        switch (usage) {
+        case 1:
+          mouse_fn_extractor_queue_.Enqueue(left_);
+          break;
+        case 2:
+          mouse_fn_extractor_queue_.Enqueue(right_);
+          break;
+        case 3:
+          mouse_fn_extractor_queue_.Enqueue(middle_);
+          break;
+        }
+      }
+      //pfUsage(usage);
     }
 
     // bits_left            - number of bits in the field(array of fields,
@@ -1343,7 +1360,11 @@ void ReportDescParser2::OnInputItem(uint8_t itm) {
         p++;
       }
     }
-    PrintByteValue(result.dwResult);
+    //PrintByteValue(result.dwResult);
+    if (!mouse_fn_extractor_queue_.IsEmpty()) {
+      MouseFnExtractor *extractor = mouse_fn_extractor_queue_.Dequeue();
+      extractor->SetValues(rptSize, rptCount, result.dwResult);
+    }
   }
   E_Notify(PSTR("\r\n"), 0x80);
 }
@@ -1352,10 +1373,24 @@ void UniversalReportParser::Parse(USBHID *hid,
                                   bool is_rpt_id __attribute__((unused)),
                                   uint8_t len, uint8_t *buf) {
   ReportDescParser2 prs(len, buf);
+  prs.SetMouseFnExtractors(&left_, &middle_, &right_, &x_, &y_, &wheel_);
 
   uint8_t ret = hid->GetReportDescr(0, &prs);
 
   if (ret)
     ErrorMessage<uint8_t>(PSTR("GetReportDescr-2"), ret);
+
+  Serial.print("Left: ");
+  Serial.println((left_.GetBtn()) ?"Pressed" : "Released");
+  Serial.print("Middle: ");
+  Serial.println((middle_.GetBtn()) ?"Pressed" : "Released");
+  Serial.print("Right: ");
+  Serial.println((right_.GetBtn()) ?"Pressed" : "Released");
+  Serial.print("X: ");
+  Serial.println(x_.GetPos());
+  Serial.print("Y: ");
+  Serial.println(y_.GetPos());
+  Serial.print("Wheel: ");
+  Serial.println(wheel_.GetWheel());
 }
 } // namespace ModifiedParser
