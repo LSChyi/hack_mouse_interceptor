@@ -44,9 +44,12 @@ void setup() {
   if (!hidSelector.SetReportParser(0, &Uni)) {
     ErrorMessage<uint8_t>(PSTR("SetReportParser"), 1);
   }
-  
+
   mouse_handler.Init();
   Uni.SetMouseHandler(&mouse_handler);
 }
 
-void loop() { Usb.Task(); }
+void loop() {
+  Usb.Task();
+  mouse_handler.Task();
+}
