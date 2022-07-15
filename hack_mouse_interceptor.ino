@@ -1,8 +1,9 @@
 // #define DEBUG // Turn on if need debugging
 
+#include "modified_hidescriptorparser.h"
+
 #include <SPI.h>
 #include <hidcomposite.h>
-#include <hidescriptorparser.h>
 #include <usbhub.h>
 
 // Override HIDComposite to be able to select which interface we want to hook
@@ -31,8 +32,7 @@ void HIDSelector::ParseHIDData(USBHID *hid, uint8_t ep, bool is_rpt_id,
 
 USB Usb;
 HIDSelector hidSelector(&Usb);
-UniversalReportParser
-    Uni; // TODO overwirte this with custome, namespaced parser
+ModifiedParser::UniversalReportParser Uni;
 
 void setup() {
   Serial.begin(115200);
