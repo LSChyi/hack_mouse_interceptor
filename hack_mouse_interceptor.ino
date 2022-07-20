@@ -12,21 +12,32 @@
 // Override HIDComposite to be able to select which interface we want to hook
 // into
 class HIDSelector : public HIDComposite {
+  uint8_t target_interface_;
+
 public:
   HIDSelector(USB *p) : HIDComposite(p){};
 
 protected:
   bool SelectInterface(uint8_t iface, uint8_t proto);
+  uint8_t OnInitSuccessful();
 };
 
 // Return true for the interface we want to hook into
 bool HIDSelector::SelectInterface(uint8_t iface, uint8_t proto) {
-  return (proto != 0) ? true : false;
+  if (proto == 2) {
+    target_interface_ = iface;
+    return true;
+  }
+  return false;
+}
+
+uint8_t HIDSelector::OnInitSuccessful() {
+  ModifiedParser::ReportDescParser report_parser;
+  return GetReportDescr(target_interface_, &report_parser);
 }
 
 USB Usb;
 HIDSelector hidSelector(&Usb);
-ModifiedParser::UniversalReportParser Uni;
 MouseHandler mouse_handler;
 uint32_t trigger_value;
 
@@ -44,12 +55,7 @@ void setup() {
 
   delay(200);
 
-  if (!hidSelector.SetReportParser(0, &Uni)) {
-    ErrorMessage<uint8_t>(PSTR("SetReportParser"), 1);
-  }
-
   mouse_handler.Init();
-  Uni.SetMouseHandler(&mouse_handler);
 
   EEPROM.get(TRIGGER_VALUE_ADDR, trigger_value);
   Serial.print("trigger ms set to ");
