@@ -17,10 +17,6 @@ e-mail   :  support@circuitsathome.com
 #ifndef MODIFIED_HIDESCRIPTORPARSER_H_
 #define MODIFIED_HIDESCRIPTORPARSER_H_
 
-#include "circular_queue.h"
-#include "mouse_fn_extractor.h"
-#include "mouse_handler.h"
-
 #include <usbhid.h>
 
 namespace ModifiedParser {
@@ -144,63 +140,6 @@ public:
 };
 
 class ReportDescParser : public ReportDescParserBase {};
-
-class ReportDescParser2 : public ReportDescParserBase {
-  uint8_t rptId;      // Report ID
-  uint8_t useMin;     // Usage Minimum
-  uint8_t useMax;     // Usage Maximum
-  uint8_t fieldCount; // Number of field being currently processed
-
-  void OnInputItem(
-      uint8_t itm); // Method which is called every time Input item is found
-
-  uint8_t *pBuf; // Report buffer pointer
-  uint8_t bLen;  // Report length
-
-protected:
-  // Method should be defined here if virtual.
-  virtual uint8_t ParseItem(uint8_t **pp, uint16_t *pcntdn);
-
-public:
-  ReportDescParser2(uint16_t len, uint8_t *pbuf)
-      : ReportDescParserBase(), rptId(0), useMin(0), useMax(0), fieldCount(0),
-        pBuf(pbuf), bLen(len){};
-  void SetMouseFnExtractors(MouseFnExtractor *left, MouseFnExtractor *middle,
-                            MouseFnExtractor *right, MouseFnExtractor *x,
-                            MouseFnExtractor *y, MouseFnExtractor *wheel) {
-    left_ = left;
-    middle_ = middle;
-    right_ = right;
-    x_ = x;
-    y_ = y;
-    wheel_ = wheel;
-  };
-
-private:
-  CircularQueue<MouseFnExtractor *> mouse_fn_extractor_queue_;
-  MouseFnExtractor *left_;
-  MouseFnExtractor *middle_;
-  MouseFnExtractor *right_;
-  MouseFnExtractor *x_;
-  MouseFnExtractor *y_;
-  MouseFnExtractor *wheel_;
-};
-
-class UniversalReportParser : public HIDReportParser {
-public:
-  // Method should be defined here if virtual.
-  virtual void Parse(USBHID *hid, bool is_rpt_id, uint8_t len, uint8_t *buf);
-  void SetMouseHandler(MouseHandler *handler) { handler_ = handler; };
-
-private:
-  MouseBtnExtractor left_;
-  MouseBtnExtractor middle_;
-  MouseBtnExtractor right_;
-  MousePosExtractor x_;
-  MousePosExtractor y_;
-  MouseWheelExtractor wheel_;
-  MouseHandler *handler_;
-};
 } // namespace ModifiedParser
 
 #endif // __HIDDESCRIPTORPARSER_H__
