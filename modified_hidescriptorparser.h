@@ -123,7 +123,7 @@ protected:
 public:
   ReportDescParserBase()
       : itemParseState(0), itemSize(0), itemPrefix(0), rptSize(0), rptCount(0),
-        pfUsage(NULL) {
+        pfUsage(NULL), accumulated_offset_bits_(0) {
     theBuffer.pValue = varBuffer;
     valParser.Initialize(&theBuffer);
     theSkipper.Initialize(&theBuffer);
@@ -137,6 +137,9 @@ public:
     ,
     enErrorBufferTooSmall
   };
+
+private:
+  uint8_t accumulated_offset_bits_;
 };
 
 class ReportDescParser : public ReportDescParserBase {};

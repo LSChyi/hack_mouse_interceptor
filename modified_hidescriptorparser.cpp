@@ -926,8 +926,7 @@ void ReportDescParserBase::PrintItemTitle(uint8_t prefix) {
 }
 
 uint8_t ReportDescParserBase::ParseItem(uint8_t **pp, uint16_t *pcntdn) {
-  // uint8_t ret = enErrorSuccess;
-  // reinterpret_cast<>(varBuffer);
+  static uint16_t last_pf_usage_data;
   switch (itemParseState) {
   case 0:
     if (**pp == HID_LONG_ITEM_PREFIX)
@@ -972,8 +971,10 @@ uint8_t ReportDescParserBase::ParseItem(uint8_t **pp, uint16_t *pcntdn) {
         if (theBuffer.valueSize > 1) {
           uint16_t *ui16 = reinterpret_cast<uint16_t *>(varBuffer);
           pfUsage(*ui16);
+          last_pf_usage_data = *ui16;
         } else {
           pfUsage(data);
+          last_pf_usage_data = data;
         }
       }
       break;
@@ -989,12 +990,14 @@ uint8_t ReportDescParserBase::ParseItem(uint8_t **pp, uint16_t *pcntdn) {
     case (TYPE_GLOBAL | TAG_GLOBAL_LOGICALMAX):
     case (TYPE_GLOBAL | TAG_GLOBAL_PHYSMIN):
     case (TYPE_GLOBAL | TAG_GLOBAL_PHYSMAX):
-    case (TYPE_GLOBAL | TAG_GLOBAL_REPORTID):
     case (TYPE_LOCAL | TAG_LOCAL_USAGEMIN):
     case (TYPE_LOCAL | TAG_LOCAL_USAGEMAX):
     case (TYPE_GLOBAL | TAG_GLOBAL_UNITEXP):
     case (TYPE_GLOBAL | TAG_GLOBAL_UNIT):
       PrintValue(varBuffer, theBuffer.valueSize);
+      break;
+    case (TYPE_GLOBAL | TAG_GLOBAL_REPORTID):
+      accumulated_offset_bits_ += 8;
       break;
     case (TYPE_GLOBAL | TAG_GLOBAL_PUSH):
     case (TYPE_GLOBAL | TAG_GLOBAL_POP):
@@ -1037,12 +1040,26 @@ uint8_t ReportDescParserBase::ParseItem(uint8_t **pp, uint16_t *pcntdn) {
     case (TYPE_MAIN | TAG_MAIN_INPUT):
     case (TYPE_MAIN | TAG_MAIN_OUTPUT):
     case (TYPE_MAIN | TAG_MAIN_FEATURE):
+      if (pfUsage) {
+        Serial.println("\nlschyi, ready to print pfUsage");
+        pfUsage(last_pf_usage_data);
+        Serial.println("\nlschyi, print pfUsage done");
+      }
+      Serial.print("\naccumulated_offset_bits_ = ");
+      Serial.println(accumulated_offset_bits_);
+      uint16_t report_bits = (uint16_t)rptSize * (uint16_t)rptCount;
+      Serial.print("report_bits = ");
+      Serial.print(report_bits);
+      accumulated_offset_bits_ += report_bits;
+      Serial.print(", accumulated_offset_bits_ now is ");
+      Serial.println(accumulated_offset_bits_);
       totalSize += (uint16_t)rptSize * (uint16_t)rptCount;
       rptSize = 0;
       rptCount = 0;
       E_Notify(PSTR("("), 0x80);
       PrintBin<uint8_t>(data, 0x80);
       E_Notify(PSTR(")"), 0x80);
+      Serial.println("=================== split ===================");
       break;
     } // switch (**pp & (TYPE_MASK | TAG_MASK))
   }
