@@ -41,11 +41,25 @@ public:
 
 class MousePosExtractor : public MouseFnExtractor {
 public:
+  int8_t GetX(uint8_t *buf) { return GetValue(buf, offset_bits_); };
+  int8_t GetY(uint8_t *buf) { return GetValue(buf, offset_bits_ + size_); };
+
+private:
+  // HID report are little endian
+  int8_t GetValue(uint8_t *buf, uint8_t offset_bits) {
+    int8_t val = 0;
+    val = buf[offset_bits / 8];
+    if (offset_bits % 8 != 0) {
+      val <<= (8 - (offset_bits % 8));
+      val |= (buf[(offset_bits / 8) + 1] >> (offset_bits % 8));
+    }
+    return val;
+  };
 };
 
 class MouseWheelExtractor : public MouseFnExtractor {
 public:
- int8_t GetWheel(uint8_t *buf) { return buf[offset_bits_ / 8]; };
+  int8_t GetWheel(uint8_t *buf) { return buf[offset_bits_ / 8]; };
 };
 
 #endif
