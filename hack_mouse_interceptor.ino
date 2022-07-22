@@ -1,7 +1,8 @@
-//#define DEBUG // Turn on if need debugging
+#define DEBUG // Turn on if need debugging
 #define TRIGGER_VALUE_ADDR 0
 
 #include "modified_hidescriptorparser.h"
+#include "mouse_fn_extractor.h"
 #include "mouse_handler.h"
 
 #include <EEPROM.h>
@@ -12,16 +13,24 @@
 // Override HIDComposite to be able to select which interface we want to hook
 // into
 class HIDSelector : public HIDComposite {
-  uint8_t target_interface_;
-
 public:
-  HIDSelector(USB *p) : HIDComposite(p){};
+  HIDSelector(USB *p, MouseBtnExtractor *btn_extractor,
+              MousePosExtractor *pos_extractor,
+              MouseWheelExtractor *wheel_extractor)
+      : HIDComposite(p), btn_extractor_(btn_extractor),
+        pos_extractor_(pos_extractor), wheel_extractor_(wheel_extractor){};
 
 protected:
   bool SelectInterface(uint8_t iface, uint8_t proto);
   void ParseHIDData(USBHID *hid, uint8_t ep, bool is_rpt_id, uint8_t len,
                     uint8_t *buf); // Called by the HIDComposite library
   uint8_t OnInitSuccessful();
+
+private:
+  uint8_t target_interface_;
+  MouseBtnExtractor *btn_extractor_;
+  MousePosExtractor *pos_extractor_;
+  MouseWheelExtractor *wheel_extractor_;
 };
 
 // Return true for the interface we want to hook into
@@ -34,7 +43,8 @@ bool HIDSelector::SelectInterface(uint8_t iface, uint8_t proto) {
 }
 
 uint8_t HIDSelector::OnInitSuccessful() {
-  ModifiedParser::ReportDescParser report_parser;
+  ModifiedParser::ReportDescParser report_parser(btn_extractor_, pos_extractor_,
+                                                 wheel_extractor_);
   return GetReportDescr(target_interface_, &report_parser);
 }
 
@@ -51,8 +61,12 @@ void HIDSelector::ParseHIDData(USBHID *hid, uint8_t ep, bool is_rpt_id,
   }
 }
 
+MouseBtnExtractor btn_extractor;
+MousePosExtractor pos_extractor;
+MouseWheelExtractor wheel_extractor;
+
 USB Usb;
-HIDSelector hidSelector(&Usb);
+HIDSelector hidSelector(&Usb, &btn_extractor, &pos_extractor, &wheel_extractor);
 MouseHandler mouse_handler;
 uint32_t trigger_value;
 

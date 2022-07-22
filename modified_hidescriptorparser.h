@@ -17,6 +17,8 @@ e-mail   :  support@circuitsathome.com
 #ifndef MODIFIED_HIDESCRIPTORPARSER_H_
 #define MODIFIED_HIDESCRIPTORPARSER_H_
 
+#include "mouse_fn_extractor.h"
+
 #include <usbhid.h>
 
 namespace ModifiedParser {
@@ -121,9 +123,13 @@ protected:
   void SetUsagePage(uint16_t page);
 
 public:
-  ReportDescParserBase()
+  ReportDescParserBase(MouseFnExtractor *btn_extractor,
+                       MouseFnExtractor *pos_extractor,
+                       MouseFnExtractor *wheel_extractor)
       : itemParseState(0), itemSize(0), itemPrefix(0), rptSize(0), rptCount(0),
-        pfUsage(NULL), accumulated_offset_bits_(0) {
+        pfUsage(NULL), accumulated_offset_bits_(0),
+        btn_extractor_(btn_extractor), pos_extractor_(pos_extractor),
+        wheel_extractor_(wheel_extractor) {
     theBuffer.pValue = varBuffer;
     valParser.Initialize(&theBuffer);
     theSkipper.Initialize(&theBuffer);
@@ -140,9 +146,18 @@ public:
 
 private:
   uint8_t accumulated_offset_bits_;
+  MouseFnExtractor *btn_extractor_;
+  MouseFnExtractor *pos_extractor_;
+  MouseFnExtractor *wheel_extractor_;
 };
 
-class ReportDescParser : public ReportDescParserBase {};
+class ReportDescParser : public ReportDescParserBase {
+public:
+  ReportDescParser(MouseFnExtractor *btn_extractor,
+                   MouseFnExtractor *pos_extractor,
+                   MouseFnExtractor *wheel_extractor)
+      : ReportDescParserBase(btn_extractor, pos_extractor, wheel_extractor){};
+};
 } // namespace ModifiedParser
 
 #endif // __HIDDESCRIPTORPARSER_H__

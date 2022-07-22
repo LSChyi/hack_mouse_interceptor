@@ -22,17 +22,6 @@ protected:
 
 class MouseBtnExtractor : public MouseFnExtractor {
 public:
-  MouseBtnExtractor() : allow_to_set_(true){};
-  void SetValues(uint8_t size, uint8_t count, uint8_t offset_bits) {
-    if (!allow_to_set_)
-      return;
-    MouseFnExtractor::SetValues(size, count, offset_bits);
-    allow_to_set_ = false;
-  };
-  void Reset() { allow_to_set_ = true; };
-
-private:
-  bool allow_to_set_;
 };
 
 class MousePosExtractor : public MouseFnExtractor {
