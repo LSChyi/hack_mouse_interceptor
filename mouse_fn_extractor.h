@@ -18,7 +18,6 @@ public:
     offset_bits_ = offset_bits;
     is_able_set_values_ = false;
   };
-  uint32_t ExtractValue(uint8_t *buf, uint8_t len) { return 0; };
   void Reset() {
     size_ = 0;
     count_ = 0;
@@ -35,6 +34,9 @@ protected:
 
 class MouseBtnExtractor : public MouseFnExtractor {
 public:
+  bool GetLeftBtn(uint8_t *buf) { return (buf[offset_bits_ / 8] & 0x1); };
+  bool GetRightBtn(uint8_t *buf) { return (buf[offset_bits_ / 8] & 0x2); };
+  bool GetMiddleBtn(uint8_t *buf) { return (buf[offset_bits_ / 8] & 0x4); };
 };
 
 class MousePosExtractor : public MouseFnExtractor {
