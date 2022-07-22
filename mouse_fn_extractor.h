@@ -45,6 +45,7 @@ public:
 
 class MouseWheelExtractor : public MouseFnExtractor {
 public:
+ int8_t GetWheel(uint8_t *buf) { return buf[offset_bits_ / 8]; };
 };
 
 #endif
