@@ -1,4 +1,4 @@
-#define DEBUG // Turn on if need debugging
+//#define DEBUG // Turn on if need debugging
 #define TRIGGER_VALUE_ADDR 0
 
 #include "modified_hidescriptorparser.h"
@@ -14,11 +14,14 @@
 // into
 class HIDSelector : public HIDComposite {
 public:
-  HIDSelector(USB *p, MouseBtnExtractor *btn_extractor,
+  HIDSelector(USB *p, MouseHandler *mouse_handler,
+              MouseBtnExtractor *btn_extractor,
               MousePosExtractor *pos_extractor,
               MouseWheelExtractor *wheel_extractor)
-      : HIDComposite(p), btn_extractor_(btn_extractor),
-        pos_extractor_(pos_extractor), wheel_extractor_(wheel_extractor){};
+      : HIDComposite(p), mouse_handler_(mouse_handler),
+        btn_extractor_(btn_extractor), pos_extractor_(pos_extractor),
+        wheel_extractor_(wheel_extractor), last_left_(false),
+        last_right_(false), last_middle_(false){};
 
 protected:
   bool SelectInterface(uint8_t iface, uint8_t proto);
@@ -27,10 +30,15 @@ protected:
   uint8_t OnInitSuccessful();
 
 private:
+  MouseHandler *mouse_handler_;
   uint8_t target_interface_;
   MouseBtnExtractor *btn_extractor_;
   MousePosExtractor *pos_extractor_;
   MouseWheelExtractor *wheel_extractor_;
+
+  bool last_left_;
+  bool last_right_;
+  bool last_middle_;
 };
 
 // Return true for the interface we want to hook into
@@ -53,6 +61,7 @@ uint8_t HIDSelector::OnInitSuccessful() {
 
 void HIDSelector::ParseHIDData(USBHID *hid, uint8_t ep, bool is_rpt_id,
                                uint8_t len, uint8_t *buf) {
+#ifdef DEBUG
   if (len && buf) {
     Serial.print(F("\r\n"));
     for (uint8_t i = 0; i < len; i++) {
@@ -62,6 +71,22 @@ void HIDSelector::ParseHIDData(USBHID *hid, uint8_t ep, bool is_rpt_id,
       Serial.print(F(" "));
     }
   }
+#endif
+  if (last_left_ != btn_extractor_->GetLeftBtn(buf)) {
+    last_left_ = btn_extractor_->GetLeftBtn(buf);
+    mouse_handler_->OnLeftReport(last_left_);
+  }
+  if (last_right_ != btn_extractor_->GetRightBtn(buf)) {
+    last_right_ = btn_extractor_->GetRightBtn(buf);
+    mouse_handler_->OnRightReport(last_right_);
+  }
+  if (last_middle_ != btn_extractor_->GetMiddleBtn(buf)) {
+    last_middle_ = btn_extractor_->GetMiddleBtn(buf);
+    mouse_handler_->OnMiddleReport(last_middle_);
+  }
+  mouse_handler_->OnPosReport(pos_extractor_->GetX(buf),
+                              pos_extractor_->GetY(buf),
+                              wheel_extractor_->GetWheel(buf));
 }
 
 MouseBtnExtractor btn_extractor;
@@ -69,8 +94,9 @@ MousePosExtractor pos_extractor;
 MouseWheelExtractor wheel_extractor;
 
 USB Usb;
-HIDSelector hidSelector(&Usb, &btn_extractor, &pos_extractor, &wheel_extractor);
 MouseHandler mouse_handler;
+HIDSelector hidSelector(&Usb, &mouse_handler, &btn_extractor, &pos_extractor,
+                        &wheel_extractor);
 uint32_t trigger_value;
 
 void setup() {
