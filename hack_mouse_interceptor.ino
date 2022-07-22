@@ -43,6 +43,9 @@ bool HIDSelector::SelectInterface(uint8_t iface, uint8_t proto) {
 }
 
 uint8_t HIDSelector::OnInitSuccessful() {
+  btn_extractor_->Reset();
+  pos_extractor_->Reset();
+  wheel_extractor_->Reset();
   ModifiedParser::ReportDescParser report_parser(btn_extractor_, pos_extractor_,
                                                  wheel_extractor_);
   return GetReportDescr(target_interface_, &report_parser);

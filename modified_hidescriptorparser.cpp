@@ -1041,25 +1041,35 @@ uint8_t ReportDescParserBase::ParseItem(uint8_t **pp, uint16_t *pcntdn) {
     case (TYPE_MAIN | TAG_MAIN_OUTPUT):
     case (TYPE_MAIN | TAG_MAIN_FEATURE):
       if (pfUsage) {
-        Serial.println("\nlschyi, ready to print pfUsage");
-        pfUsage(last_pf_usage_data);
-        Serial.println("\nlschyi, print pfUsage done");
+        if (pfUsage == &ReportDescParserBase::PrintButtonPageUsage) {
+          if (last_pf_usage_data == 1) { // mouse button
+            btn_extractor_->SetValues(rptSize, rptCount,
+                                      accumulated_offset_bits_);
+          }
+        } else if (pfUsage ==
+                   &ReportDescParserBase::PrintGenericDesktopPageUsage) {
+          switch (last_pf_usage_data) {
+          case 48: // X, this may have bug if x and y does not report in the
+                   // descriptor together
+          case 49: // Y
+            pos_extractor_->SetValues(rptSize, rptCount,
+                                      accumulated_offset_bits_);
+            break;
+          case 56: // wheel
+            wheel_extractor_->SetValues(rptSize, rptCount,
+                                        accumulated_offset_bits_);
+            break;
+          }
+        }
       }
-      Serial.print("\naccumulated_offset_bits_ = ");
-      Serial.println(accumulated_offset_bits_);
       uint16_t report_bits = (uint16_t)rptSize * (uint16_t)rptCount;
-      Serial.print("report_bits = ");
-      Serial.print(report_bits);
       accumulated_offset_bits_ += report_bits;
-      Serial.print(", accumulated_offset_bits_ now is ");
-      Serial.println(accumulated_offset_bits_);
       totalSize += (uint16_t)rptSize * (uint16_t)rptCount;
       rptSize = 0;
       rptCount = 0;
       E_Notify(PSTR("("), 0x80);
       PrintBin<uint8_t>(data, 0x80);
       E_Notify(PSTR(")"), 0x80);
-      Serial.println("=================== split ===================");
       break;
     } // switch (**pp & (TYPE_MASK | TAG_MASK))
   }
