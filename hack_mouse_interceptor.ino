@@ -122,7 +122,9 @@ void setup() {
 }
 
 void loop() {
-  Usb.Task();
+  for (int i = 0; i < 100; i++) {
+    Usb.Task();
+  }
   mouse_handler.Task();
 
   if (Serial.available()) {
