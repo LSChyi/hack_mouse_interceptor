@@ -47,25 +47,18 @@ public:
 private:
   // HID report are little endian
   int8_t GetValue(uint8_t *buf, uint8_t offset_bits) {
+    if (size_ == 8) {
+      return buf[offset_bits / 8];
+    }
     // current implementation accept at most 16 bits X or Y report value.
     // due to bit alignment issue, almost all mouse report X or Y  with 8, 16,
     // or 12 bits.
-    int16_t val = 0;
-    switch (size_) {
-    case 8:
-      return buf[offset_bits / 8];
-    case 16:
-      val |= (buf[offset_bits / 8] | (buf[(offset_bits / 8) + 1] << 8));
-      break;
-    case 12:
+    int16_t val = *(int16_t*)&buf[offset_bits / 8];
+    if (size_ == 12) {
       if (offset_bits % 8 == 0) {
-        val |= (buf[offset_bits / 8] | ((buf[(offset_bits / 8) + 1] & 0x0F) << 8));
-      } else {
-        val |= ((buf[offset_bits / 8] >> 4) | (buf[(offset_bits / 8) + 1] << 4));
+        val <<= 4; // drop first 4 bits and also align the sign bit
       }
-      val <<= 4; // shift sign bit to match first bit
       val /= (1 << 4); // divide back
-      break;
     }
 
     if (val >= 127) {
