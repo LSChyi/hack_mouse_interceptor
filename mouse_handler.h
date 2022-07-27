@@ -15,7 +15,7 @@ enum class State {
 class MouseHandler {
 public:
   MouseHandler()
-      : left_state_(false), middle_state_(false), right_state_(false),
+      : left_state_(false),
         state_(State::Release), trigger_time_(0),
         trigger_time_value_(DEFAULT_TRIGGER_TIME_VALUE){};
   void Init();

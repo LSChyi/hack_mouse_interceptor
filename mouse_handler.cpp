@@ -33,17 +33,11 @@ void MouseHandler::OnLeftReport(bool pressing) {
 }
 
 void MouseHandler::OnMiddleReport(bool pressing) {
-  if (middle_state_ != pressing) {
-    pressing ? Mouse.press(MOUSE_MIDDLE) : Mouse.release(MOUSE_MIDDLE);
-  }
-  middle_state_ = pressing;
+  pressing ? Mouse.press(MOUSE_MIDDLE) : Mouse.release(MOUSE_MIDDLE);
 }
 
 void MouseHandler::OnRightReport(bool pressing) {
-  if (right_state_ != pressing) {
-    pressing ? Mouse.press(MOUSE_RIGHT) : Mouse.release(MOUSE_RIGHT);
-  }
-  right_state_ = pressing;
+  pressing ? Mouse.press(MOUSE_RIGHT) : Mouse.release(MOUSE_RIGHT);
 }
 
 void MouseHandler::OnPosReport(uint8_t x, uint8_t y, uint8_t wheel) {
